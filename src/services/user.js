@@ -9,6 +9,9 @@ class User {
             if (userDetails.firstName.trim() === "" || userDetails.lastName.trim() === "" || userDetails.email.trim() === "" || userDetails.password.trim() === "") {
                 throw new Error("Invalid Payload");
             }
+            if(!userDetails.profile){
+                userDetails.profile="default"
+            }
             userDetails.password = await encryption.encryptPassword(userDetails.password);
             await prisma.userDetails.create({
                 data: userDetails
@@ -35,7 +38,7 @@ class User {
                     email: loginDetails.email,
                 },
             })
-            auth.generateToken()
+            auth.generateToken(loginDetails)
             const isMatch = encryption.comparePassword(loginDetails.password, user.password);
             if (isMatch) {
                 return {

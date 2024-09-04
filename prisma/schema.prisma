@@ -24,15 +24,25 @@ model UserDetails {
   profile          String     @db.VarChar()
   sentMessages     Messages[] @relation("MessagesFrom")
   recievedMessages Messages[] @relation("MessagesTo")
+  user1            Rooms[]    @relation("user1")
+  user2            Rooms[]    @relation("user2")
 }
 
 model Messages {
-  id            String       @id @default(uuid())
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @default(now())
-  content       String       @db.VarChar()
-  from          UserDetails  @relation("MessagesFrom", fields: [fromID], references: [id])
-  fromID        String
-  to            UserDetails  @relation("MessagesTo", fields: [toID], references: [id])
-  toID          String
+  id        String      @id @default(uuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now())
+  content   String      @db.VarChar()
+  from      UserDetails @relation("MessagesFrom", fields: [fromID], references: [id])
+  fromID    String
+  to        UserDetails @relation("MessagesTo", fields: [toID], references: [id])
+  toID      String
+}
+
+model Rooms {
+  id           String       @id @default(uuid())
+  User1Details UserDetails? @relation("user1", fields: [user1], references: [id])
+  user1        String
+  User2Details UserDetails? @relation("user2", fields: [user2], references: [id])
+  user2        String
 }
