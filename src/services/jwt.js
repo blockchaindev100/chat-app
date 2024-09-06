@@ -6,23 +6,25 @@ class Jwt {
         const options = {
             expiresIn: '1h',
         };
-        const token = jwt.sign(payload, secretKey, options);
+        const token = jwt.sign({ data: payload }, secretKey, options);
         return token;
     }
 
     verifyToken(token) {
-        jwt.verify(token, process.env.SECRET_KEY, (err, payload) => {
-            if (err) {
-                return {
-                    message: "Token is not valid",
-                    error: new Error("Token is not valid")
+        return new Promise((resolve, reject) => {
+            jwt.verify(token, process.env.SECRET_KEY, (err, payload) => {
+                if (err) {
+                    reject({
+                        message: "Token is not valid",
+                        error: new Error("Token is not valid")
+                    })
+                } else {
+                    resolve({
+                        payload,
+                        error: null
+                    })
                 }
-            } else {
-                return {
-                    payload,
-                    error: null
-                }
-            }
+            })
         })
     }
 }

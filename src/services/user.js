@@ -9,8 +9,8 @@ class User {
             if (userDetails.firstName.trim() === "" || userDetails.lastName.trim() === "" || userDetails.email.trim() === "" || userDetails.password.trim() === "") {
                 throw new Error("Invalid Payload");
             }
-            if(!userDetails.profile){
-                userDetails.profile="default"
+            if (!userDetails.profile) {
+                userDetails.profile = "default"
             }
             userDetails.password = await encryption.encryptPassword(userDetails.password);
             await prisma.userDetails.create({
@@ -37,13 +37,22 @@ class User {
                 where: {
                     email: loginDetails.email,
                 },
+                select: {
+                    email: true,
+                    firstName: true,
+                    lastName: true,
+                    profile: true,
+                    password: true,
+                    id: true
+                }
             })
-            auth.generateToken(loginDetails)
-            const isMatch = encryption.comparePassword(loginDetails.password, user.password);
+            const token = auth.generateToken(user.id)
+            const isMatch = await encryption.comparePassword(loginDetails.password, user.password);
             if (isMatch) {
                 return {
                     message: "Valid User",
-                    error: null
+                    token,
+                    userid: user.id
                 }
             } else {
                 return {
@@ -52,6 +61,7 @@ class User {
                 }
             }
         } catch (err) {
+            console.log(err);
             return {
                 message: "Error Loging User",
                 error: err

@@ -1,21 +1,29 @@
-import { auth } from "../services/jwt";
+import { auth } from "../services/jwt.js";
 
 class Authentication {
-    userAuthenctication(req, res, next) {
-        const authHeader = req.header.authorization;
-        if (authHeader) {
-            const token = authHeader.split(' ')[1];
-            const result = auth.verifyToken(token);
-            if (!result.error) {
-                next();
+    async userAuthenctication(req, res, next) {
+        try {
+            const authHeader = req.headers["authorization"];
+            if (authHeader) {
+                const token = authHeader.split(' ')[1];
+                const result = await auth.verifyToken(token);
+                if (!result.error) {
+                    req.user = result.payload.data;
+                    next();
+                } else {
+                    return res.json({
+                        "message": "Invalid Token"
+                    })
+                }
             } else {
-                return res.json({
-                    "message": "Invalid Token"
+                return res.status(401).json({
+                    "message": "Token is not provided"
                 })
             }
-        } else {
-            return res.json({
-                "message": "Token is not provided"
+        } catch (err) {
+            console.log(err);
+            return res.status(401).json({
+                "message": "Error in authentication"
             })
         }
     }

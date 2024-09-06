@@ -14,35 +14,41 @@ datasource db {
 }
 
 model UserDetails {
-  id               String     @id @default(uuid())
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  firstName        String     @db.VarChar()
-  lastName         String     @db.VarChar()
-  email            String     @unique @db.VarChar()
-  password         String     @db.VarChar()
-  profile          String     @db.VarChar()
-  sentMessages     Messages[] @relation("MessagesFrom")
-  recievedMessages Messages[] @relation("MessagesTo")
-  user1            Rooms[]    @relation("user1")
-  user2            Rooms[]    @relation("user2")
+  id              String            @id @default(uuid())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  firstName       String            @db.VarChar()
+  lastName        String            @db.VarChar()
+  email           String            @unique @db.VarChar()
+  password        String            @db.VarChar()
+  profile         String            @db.VarChar()
+  RoomParticipant RoomParticipant[]
+  Message         Message[]
 }
 
-model Messages {
+model Room {
+  id           String            @id @default(uuid())
+  participants RoomParticipant[]
+  messages     Message[]
+  createdAt    DateTime          @default(now())
+  isGroupChat  Boolean           @default(false)
+}
+
+model RoomParticipant {
   id        String      @id @default(uuid())
+  user      UserDetails @relation(fields: [userId], references: [id])
+  userId    String
+  room      Room        @relation(fields: [roomId], references: [id])
+  roomId    String
   createdAt DateTime    @default(now())
-  updatedAt DateTime    @default(now())
-  content   String      @db.VarChar()
-  from      UserDetails @relation("MessagesFrom", fields: [fromID], references: [id])
-  fromID    String
-  to        UserDetails @relation("MessagesTo", fields: [toID], references: [id])
-  toID      String
 }
 
-model Rooms {
-  id           String       @id @default(uuid())
-  User1Details UserDetails? @relation("user1", fields: [user1], references: [id])
-  user1        String
-  User2Details UserDetails? @relation("user2", fields: [user2], references: [id])
-  user2        String
+model Message {
+  id        String      @id @default(uuid())
+  content   String
+  sender    UserDetails @relation(fields: [senderId], references: [id])
+  senderId  String
+  room      Room        @relation(fields: [roomId], references: [id])
+  roomId    String
+  createdAt DateTime    @default(now())
 }

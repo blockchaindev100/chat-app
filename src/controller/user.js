@@ -8,27 +8,27 @@ class User {
             if (result.error) {
                 throw new Error(result.error)
             }
-            return res.json({ "message": result.message })
+            return res.status(200).json({ "message": result.message })
         }
         catch (err) {
-            console.log(err);
-            return res.json({ "message": "user creation failed" });
+            return res.status(500).json({ "message": "user creation failed" });
         }
     }
 
     async login(req, res) {
         try {
             const result = await userController.login(req.body);
-            if (result.err) {
+            if (result.error) {
                 throw new Error(result.message);
             }
-            const token = auth.generateToken(req.body);
-            return res.json({
+            return res.status(200).json({
                 "message": result.message,
-                token
+                "token": result.token,
+                "userid": result.userid
             })
         } catch (err) {
-            return res.json({ "message": "Invalid user" })
+            console.log(err);
+            return res.status(401).json({ "message": "Invalid user" })
         }
     }
 }
