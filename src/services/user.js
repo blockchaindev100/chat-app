@@ -10,7 +10,7 @@ class User {
                 throw new Error("Invalid Payload");
             }
             if (!userDetails.profile) {
-                userDetails.profile = "default"
+                userDetails.profile = "default.png"
             }
             userDetails.password = await encryption.encryptPassword(userDetails.password);
             await prisma.userDetails.create({
@@ -64,6 +64,36 @@ class User {
             console.log(err);
             return {
                 message: "Error Loging User",
+                error: err
+            }
+        }
+    }
+
+    async getUsers(userId) {
+        try {
+            const users = await prisma.userDetails.findMany({
+                where: {
+                    id:{
+                        not:userId
+                    }
+                },
+                select: {
+                    email: true,
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    profile:true
+                }
+            })
+            return {
+                message: "users retrived successfully",
+                data: users,
+                error: null
+            }
+        } catch (err) {
+            console.log(err);
+            return {
+                message: "Error retriving user",
                 error: err
             }
         }

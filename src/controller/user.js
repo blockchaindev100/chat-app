@@ -31,6 +31,25 @@ class User {
             return res.status(401).json({ "message": "Invalid user" })
         }
     }
+
+    async getUsers(req, res) {
+        try {
+            const result = await userController.getUsers(req.user);
+            if (result.error) {
+                throw new Error(result.message);
+            }
+            return res.status(200).json({
+                message: result.message,
+                data: result.data
+            })
+        } catch (err) {
+            return res.status(500).json(
+                {
+                    message:"Error retriving users"
+                }
+            )
+        }
+    }
 }
 
 export const user = new User()
