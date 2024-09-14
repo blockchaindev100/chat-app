@@ -25,6 +25,8 @@ class SocketService {
                     console.log('Message saved to database:', message);
 
                     io.to(roomId).emit('newMessage', message);
+
+                    socket.broadcast.emit('newRoomMessage', { roomId, message });
                 } catch (error) {
                     console.error('Error saving message:', error);
                 }

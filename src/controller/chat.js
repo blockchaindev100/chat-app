@@ -88,18 +88,29 @@ class Chat {
                         }
                     },
                     messages: {
-                        orderBy: { createdAt: "desc" },
+                        orderBy: { createdAt: "desc" }, 
                         take: 1
                     }
+                },
+                orderBy: {
+                    createdAt: "desc"
                 }
             });
-
+    
+            rooms.sort((a, b) => {
+                const messageA = a.messages[0]?.createdAt || a.createdAt;
+                const messageB = b.messages[0]?.createdAt || b.createdAt;
+                return new Date(messageB) - new Date(messageA);
+            });
+    
             res.status(200).json(rooms);
         } catch (err) {
             console.log(err);
-            res.status(500).json({ error: "Error retrieving rooms" })
+            res.status(500).json({ error: "Error retrieving rooms" });
         }
     }
+    
+
 }
 
 export const chat = new Chat();
