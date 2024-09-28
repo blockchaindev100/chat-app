@@ -61,7 +61,6 @@ class User {
                 }
             }
         } catch (err) {
-            console.log(err);
             return {
                 message: "Error Loging User",
                 error: err
@@ -73,8 +72,8 @@ class User {
         try {
             const users = await prisma.userDetails.findMany({
                 where: {
-                    id:{
-                        not:userId
+                    id: {
+                        not: userId
                     }
                 },
                 select: {
@@ -82,7 +81,7 @@ class User {
                     id: true,
                     firstName: true,
                     lastName: true,
-                    profile:true
+                    profile: true
                 }
             })
             return {
@@ -91,7 +90,6 @@ class User {
                 error: null
             }
         } catch (err) {
-            console.log(err);
             return {
                 message: "Error retriving user",
                 error: err
@@ -99,6 +97,85 @@ class User {
         }
     }
 
+    async getUserById(userId) {
+        try {
+            const userDetails = await prisma.userDetails.findUnique({
+                where: {
+                    id: userId
+                },
+                select: {
+                    email: true,
+                    firstName: true,
+                    lastName: true,
+                    id: true,
+                    profile: true
+                }
+            })
+            console.log("userdetails", userDetails);
+            return {
+                message: "Details Retrive",
+                data: userDetails
+            };
+        } catch (err) {
+            return {
+                message: "Error retriving data",
+                error: err
+            }
+        }
+    }
+
+    async updateUser(userdata, userId) {
+        try {
+            await prisma.userDetails.update({
+                where: {
+                    id: userId
+                },
+                data: {
+                    firstName: userdata.firstName,
+                    lastName: userdata.lastName
+                }
+            })
+            return {
+                message: "Updated Successfully"
+            }
+        } catch (err) {
+            return {
+                message: "Error Updating User Details",
+                error: err
+            }
+        }
+    }
+
+    async searchUsers(query) {
+        const searchTerms = query.trim().split(/\s+/);
+        try {
+            const users = await prisma.userDetails.findMany({
+                where: {
+                    AND: searchTerms.map(term => ({
+                        OR: [
+                            { firstName: { contains: term, mode: 'insensitive' } },
+                            { lastName: { contains: term, mode: 'insensitive' } },
+                        ],
+                    })),
+                },
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    profile: true,
+                },
+            });
+            return {
+                message: "user retrived successfully",
+                data: users
+            }
+        } catch (err) {
+            return {
+                error: err
+            }
+        }
+    }
 }
 
 export const user = new User();

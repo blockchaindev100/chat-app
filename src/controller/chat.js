@@ -76,19 +76,19 @@ class Chat {
                             }
                         },
                         select: {
-                            userId: true,
                             user: {
                                 select: {
                                     email: true,
                                     firstName: true,
                                     lastName: true,
                                     profile: true,
+                                    id: true
                                 }
                             }
                         }
                     },
                     messages: {
-                        orderBy: { createdAt: "desc" }, 
+                        orderBy: { createdAt: "desc" },
                         take: 1
                     }
                 },
@@ -96,20 +96,65 @@ class Chat {
                     createdAt: "desc"
                 }
             });
-    
+
             rooms.sort((a, b) => {
                 const messageA = a.messages[0]?.createdAt || a.createdAt;
                 const messageB = b.messages[0]?.createdAt || b.createdAt;
                 return new Date(messageB) - new Date(messageA);
             });
-    
+
             res.status(200).json(rooms);
         } catch (err) {
             console.log(err);
             res.status(500).json({ error: "Error retrieving rooms" });
         }
     }
-    
+
+
+    async getRoomById(req, res) {
+        const roomId = req.params['id'];
+        const userId = req.user
+        try {
+            const room = await prismaClient.room.findUnique({
+                where: {
+                    id: roomId
+                },
+                include: {
+                    participants: {
+                        where: {
+                            userId: {
+                                not: userId,
+                            }
+                        },
+                        select: {
+                            user: {
+                                select: {
+                                    email: true,
+                                    firstName: true,
+                                    lastName: true,
+                                    profile: true,
+                                    id: true
+                                }
+                            }
+                        }
+                    },
+                    messages: {
+                        orderBy: { createdAt: "desc" },
+                        take: 1
+                    }
+                }
+            });
+            res.status(200).json({
+                message: "Details Retrived Successfully",
+                data: room
+            })
+
+        } catch (err) {
+            res.status(500).json({
+                message: "Error Retrived Details"
+            })
+        }
+    }
 
 }
 
