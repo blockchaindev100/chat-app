@@ -82,9 +82,9 @@ class User {
 
     async searchUser(req, res) {
         const { query } = req.query;
-        console.log("query",query);
+        const userid = req.user;
         try {
-            const result = await userController.searchUsers(query);
+            const result = await userController.searchUsers(query,userid);
             if (!result.error) {
                 res.status(200).json(result);
             } else {

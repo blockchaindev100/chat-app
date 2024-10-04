@@ -146,7 +146,7 @@ class User {
         }
     }
 
-    async searchUsers(query) {
+    async searchUsers(query, userid) {
         const searchTerms = query.trim().split(/\s+/);
         try {
             const users = await prisma.userDetails.findMany({
@@ -157,6 +157,9 @@ class User {
                             { lastName: { contains: term, mode: 'insensitive' } },
                         ],
                     })),
+                    NOT: {
+                        id: userid
+                    }
                 },
                 select: {
                     id: true,
